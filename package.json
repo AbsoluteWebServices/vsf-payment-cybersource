@@ -1,0 +1,31 @@
+{
+  "name": "@vue-storefront/payment-cybersource",
+  "version": "0.1.0",
+  "description": "The Cybersource payment module.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/AbsoluteWebServices/vsf-payment-cybersource.git"
+  },
+  "keywords": [
+    "vue-storefront-cybersource",
+    "vsf-payment-cybersource",
+    "vue-storefront",
+    "divanteltd/vue-storefront"
+  ],
+  "author": "Dmitry Kozachek <dmitryk@absoluteweb.com> and contributors",
+  "maintainers": [],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/AbsoluteWebServices/vsf-payment-cybersource/issues"
+  },
+  "homepage": "https://github.com/AbsoluteWebServices/vsf-payment-cybersource#readme",
+  "dependencies": {
+  }
+}

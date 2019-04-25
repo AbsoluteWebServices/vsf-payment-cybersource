@@ -1,0 +1,11 @@
+{
+  "name": "@vue-storefront-api/payment-cybersource",
+  "version": "0.1.0",
+  "description": "The Cybersource payment module.",
+  "main": "index.js",
+  "author": "Dmitry Kozachek <dmitryk@absoluteweb.com> and contributors",
+  "license": "MIT",
+  "dependencies": {
+    "cybersource-rest-client": "^0.0.6"
+  }
+}
