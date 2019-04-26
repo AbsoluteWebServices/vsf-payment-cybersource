@@ -1,49 +1,51 @@
 <template>
-  <div id="payment-cybersource" class="row">
-    <div v-if="errors.message" class="col-12">
-      <div class="error">{{ errors.message }}</div>
-    </div>
-    <div class="col-12">
-      <label :id="labelId" :class="[{'text-error' : errors.cardNumber }]">{{ t('Credit Card') }}</label>
-      <div
-        :id="containerId"
-        :class="[{'has-error' : errors.cardNumber }]"
-        class="input"
-      />
-      <span class="help-error" v-if="errors.cardNumber">{{ errors.cardNumber }}</span>
-    </div>
-    <div class="col-12">
-      <div class="row">
-        <div class="col-6">
-          <label :class="[{'text-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]">{{ t('Expiration Month') }}</label>
-          <input
-            v-model="cardInfo.expirationMonth"
-            :class="[{'has-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]"
-            class="input"
-            placeholder="MM"
-            required
-            @blur="$v.cardInfo.expirationMonth.$touch()"
-          >
-          <span class="help-error" v-if="errors.cardExpirationMonth">{{ errors.cardExpirationMonth }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationMonth.required">{{ t('Expiration Month is required.') }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationMonth.numeric">{{ t('Expiration Month should be numeric.') }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationMonth.minLength || !$v.cardInfo.expirationMonth.maxLength">{{ t('Expiration Month should be 2 digits length.') }}</span>
-        </div>
+  <div id="payment-cybersource">
+    <div class="row">
+      <div v-if="errors.message" class="col-12">
+        <div class="error">{{ errors.message }}</div>
+      </div>
+      <div class="col-12">
+        <label :id="labelId" :class="[{'text-error' : errors.cardNumber }]">{{ t('Credit Card') }}</label>
+        <div
+          :id="containerId"
+          :class="[{'has-error' : errors.cardNumber }]"
+          class="input"
+        />
+        <span class="help-error" v-if="errors.cardNumber">{{ errors.cardNumber }}</span>
+      </div>
+      <div class="col-12">
+        <div class="row">
+          <div class="col-6">
+            <label :class="[{'text-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]">{{ t('Expiration Month') }}</label>
+            <input
+              v-model="cardInfo.expirationMonth"
+              :class="[{'has-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]"
+              class="input"
+              placeholder="MM"
+              required
+              @blur="$v.cardInfo.expirationMonth.$touch()"
+            >
+            <span class="help-error" v-if="errors.cardExpirationMonth">{{ errors.cardExpirationMonth }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.required">{{ t('Expiration Month is required.') }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.numeric">{{ t('Expiration Month should be numeric.') }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.minLength || !$v.cardInfo.expirationMonth.maxLength">{{ t('Expiration Month should be 2 digits length.') }}</span>
+          </div>
 
-        <div class="col-6">
-          <label :class="[{'text-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]">{{ t('Expiration Year') }}</label>
-          <input
-            v-model="cardInfo.expirationYear"
-            :class="[{'has-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]"
-            class="input"
-            placeholder="YYYY"
-            required
-            @blur="$v.cardInfo.expirationYear.$touch()"
-          >
-          <span class="help-error" v-if="errors.cardExpirationYear">{{ errors.cardExpirationYear }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationYear.required">{{ t('Expiration Year is required.') }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationYear.numeric">{{ t('Expiration Year should be numeric.') }}</span>
-          <span class="help-error" v-if="!$v.cardInfo.expirationYear.minLength || !$v.cardInfo.expirationYear.maxLength">{{ t('Expiration Year should be 4 digits length.') }}</span>
+          <div class="col-6">
+            <label :class="[{'text-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]">{{ t('Expiration Year') }}</label>
+            <input
+              v-model="cardInfo.expirationYear"
+              :class="[{'has-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]"
+              class="input"
+              placeholder="YYYY"
+              required
+              @blur="$v.cardInfo.expirationYear.$touch()"
+            >
+            <span class="help-error" v-if="errors.cardExpirationYear">{{ errors.cardExpirationYear }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationYear.required">{{ t('Expiration Year is required.') }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationYear.numeric">{{ t('Expiration Year should be numeric.') }}</span>
+            <span class="help-error" v-if="!$v.cardInfo.expirationYear.minLength || !$v.cardInfo.expirationYear.maxLength">{{ t('Expiration Year should be 4 digits length.') }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -177,8 +179,13 @@ export default {
 .col-6 {
   padding: 0 1rem;
   margin-bottom: .5rem;
-  width: 50%;
-  flex-basis: 50%;
+  width: 100%;
+  flex-basis: 100%;
+
+  @media screen and (min-width: 768px) {
+    width: 50%;
+    flex-basis: 50%;
+  }
 }
 
 .col-12 {
