@@ -24,9 +24,9 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
         let token = JSON.stringify(response)
 
-        // Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-        //   cybersource_token: token
-        // })
+        Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
+          cybersource_token: token
+        })
       })
     }
   }
