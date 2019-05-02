@@ -6,5 +6,6 @@ export const state: CybersourceState = {
   cardInfo: {
     expirationMonth: null,
     expirationYear: null,
-  }
+  },
+  token: null
 }

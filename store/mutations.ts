@@ -7,5 +7,8 @@ export const mutations: MutationTree<any> = {
   },
   [types.SET_MICROFORM] (state, data) {
     state.microform = data
+  },
+  [types.SET_TOKEN] (state, data) {
+    state.token = data
   }
 }

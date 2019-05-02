@@ -1,5 +1,5 @@
 <template>
-  <div id="payment-cybersource">
+  <div id="payment-cybersource" class="relative">
     <div class="row">
       <div v-if="errors.message" class="col-12">
         <div class="error">{{ errors.message }}</div>
@@ -8,7 +8,8 @@
         <label :id="labelId" :class="[{'text-error' : errors.cardNumber }]">{{ t('Credit Card') }}</label>
         <div
           :id="containerId"
-          :class="[{'has-error' : errors.cardNumber }]"
+          :class="[{'has-error' : errors.cardNumber }, {disabled}]"
+          :disabled="disabled"
           class="input"
         />
         <span class="help-error" v-if="errors.cardNumber">{{ errors.cardNumber }}</span>
@@ -19,7 +20,8 @@
             <label :class="[{'text-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]">{{ t('Expiration Month') }}</label>
             <input
               v-model="cardInfo.expirationMonth"
-              :class="[{'has-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }]"
+              :class="[{'has-error' : $v.cardInfo.expirationMonth.$error || errors.cardExpirationMonth }, {disabled}]"
+              :disabled="disabled"
               class="input"
               placeholder="MM"
               required
@@ -35,7 +37,8 @@
             <label :class="[{'text-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]">{{ t('Expiration Year') }}</label>
             <input
               v-model="cardInfo.expirationYear"
-              :class="[{'has-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }]"
+              :class="[{'has-error' : $v.cardInfo.expirationYear.$error || errors.cardExpirationYear }, {disabled}]"
+              :disabled="disabled"
               class="input"
               placeholder="YYYY"
               required
@@ -49,6 +52,9 @@
         </div>
       </div>
     </div>
+    <div v-if="disabled" class="disabled-overlay">
+      <button type="button" class="btn reload-btn" @click="init">{{ t('Reload') }}</button>
+    </div>
   </div>
 </template>
 
@@ -56,12 +62,13 @@
 import { required, minLength, maxLength, numeric } from 'vuelidate/lib/validators'
 import i18n from '@vue-storefront/i18n'
 import rootStore from '@vue-storefront/core/store'
+import { setTimeout, clearTimeout } from 'timers'
 
 export default {
   name: 'CybersourceMicroform',
   data () {
     return {
-      key: null,
+      disabled: false,
       labelId: 'payment-cybersource-label',
       containerId: 'payment-cybersource-container',
       formOptions: {
@@ -85,22 +92,39 @@ export default {
         cardNumber: null,
         cardExpirationMonth: null,
         cardExpirationYear: null
-      }
+      },
+      timeout: null
     }
   },
-  async mounted () {
-    this.key = await rootStore.dispatch('payment-cybersource/generateKey')
-    this.setupMicroform()
+  mounted () {
+    this.init()
   },
   methods: {
     t (string) {
       return i18n.t(string)
     },
-    setupMicroform () {
+    async init () {
+      this.block()
+      this.cancelReload()
+      this.invalidateMicroform()
+
+      var start = Date.now()
+      await this.setupMicroform()
+      var interval = (15 * 60 * 1000) - (Date.now() - start) - 5
+
+      this.timeout = setTimeout(this.reload, interval)
+    },
+    cancelReload () {
+      if (this.timeout) {
+        clearTimeout(this.timeout)
+      }
+    },
+    async setupMicroform () {
+      const key = await rootStore.dispatch('payment-cybersource/generateKey')
       window.FLEX.microform({
         ...this.formOptions,
-        keyId: this.key.kid,
-        keystore: this.key,
+        keyId: key.kid,
+        keystore: key,
         container: '#' + this.containerId,
         label: '#' + this.labelId
       }, (error, microformInstance) => {
@@ -109,7 +133,28 @@ export default {
           return
         }
         rootStore.dispatch('payment-cybersource/setMicroform', microformInstance)
+        this.unblock()
       })
+    },
+    invalidateMicroform () {
+      this.block()
+      rootStore.dispatch('payment-cybersource/invalidateKey')
+      rootStore.dispatch('payment-cybersource/invalidateMicroform')
+      rootStore.dispatch('payment-cybersource/invalidateToken')
+      document.getElementById(this.containerId).innerHTML = null
+      this.errors = {
+        message: null,
+        cardNumber: null,
+        cardExpirationMonth: null,
+        cardExpirationYear: null
+      }
+      this.$v.$reset()
+    },
+    block () {
+      this.disabled = true
+    },
+    unblock () {
+      this.disabled = false
     },
     validate () {
       this.errors = {
@@ -119,7 +164,7 @@ export default {
         cardExpirationYear: null
       }
       this.$v.$touch()
-      if (this.$v.$invalid) {
+      if (this.$v.$invalid || this.disabled) {
         return false
       } else {
         return true
@@ -170,6 +215,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.relative {
+  position: relative;
+}
+
 .row {
   display: flex;
   margin: 0 -1rem;
@@ -226,5 +275,45 @@ label {
   padding: .5rem 1rem;
   line-height: 1.5rem;
   color: #fff;
+}
+
+.disabled {
+  cursor: not-allowed;
+}
+
+.disabled-overlay {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 10;
+  background-color: rgba(255, 255, 255, .4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color .3s ease;
+
+  .reload-btn {
+    border: none;
+    background: #fff;
+    padding: .25rem;
+    color: #000;
+    font-size: 1.25rem;
+    opacity: 0;
+    transition: opacity .3s ease;
+
+    &:focus {
+      outline: none;
+    }
+  }
+
+  &:hover, &:focus {
+    background-color: rgba(255, 255, 255, .8);
+
+    .reload-btn {
+      opacity: 1;
+    }
+  }
 }
 </style>

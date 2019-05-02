@@ -1,33 +1,41 @@
 import Microform from '../components/Microform.vue'
 
 export function afterRegistration({ Vue, config, store, isServer }) {
-  // Place the order. Payload is empty as we don't have any specific info to add for this payment method '{}'
   const CURRENT_METHOD_CODE = 'cybersource'
   let correctPaymentMethod = false
   let componentInstance = null
 
   const placeOrder = () => {
-    if (correctPaymentMethod && store.state['payment-cybersource'].microform && componentInstance.validate()) {
-      const options = {
-        cardExpirationMonth: store.state['payment-cybersource'].cardInfo.expirationMonth,
-        cardExpirationYear: store.state['payment-cybersource'].cardInfo.expirationYear
-      }
-
-      store.state['payment-cybersource'].microform.createToken(options, (error, response) => {
-        if (error) {
-          // handle error
-          componentInstance.setErrors(error)
-          return
-        }
-        console.log('Token generated: ')
-        console.log(JSON.stringify(response))
-
-        let token = JSON.stringify(response)
-
+    if (correctPaymentMethod) {
+      if (store.state['payment-cybersource'].token) {
         Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-          cybersource_token: token
+          token: store.state['payment-cybersource'].token
         })
-      })
+      } else if (store.state['payment-cybersource'].microform && componentInstance.validate()) {
+        componentInstance.block()
+
+        const options = {
+          cardExpirationMonth: store.state['payment-cybersource'].cardInfo.expirationMonth,
+          cardExpirationYear: store.state['payment-cybersource'].cardInfo.expirationYear
+        }
+
+        store.state['payment-cybersource'].microform.createToken(options, (error, token) => {
+          if (error) {
+            // handle error
+            componentInstance.unblock()
+            componentInstance.setErrors(error)
+            return
+          }
+
+          componentInstance.cancelReload()
+
+          store.dispatch('payment-cybersource/setToken', token)
+
+          Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
+            token
+          })
+        })
+      }
     }
   }
 
@@ -53,7 +61,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
     Vue.prototype.$bus.$on('checkout-before-placeOrder', placeOrder)
 
-    // Mount the info component when required.
+    // Mount the microform component when required.
     Vue.prototype.$bus.$on('checkout-payment-method-changed', (paymentMethodCode) => {
       if (paymentMethodCode === CURRENT_METHOD_CODE) {
         correctPaymentMethod = true

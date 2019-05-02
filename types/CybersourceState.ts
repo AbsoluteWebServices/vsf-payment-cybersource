@@ -3,5 +3,6 @@
 export interface CybersourceState {
   key: object,
   microform: object,
-  cardInfo: object
+  cardInfo: object,
+  token: object
 }
