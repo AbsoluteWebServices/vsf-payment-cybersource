@@ -44,12 +44,13 @@ Install additional extension for `vue-storefront-api`:
 cp -f ./vue-storefront/src/modules/payment-cybersource/API/cybersource ./vue-storefront-api/src/api/extensions/
 ```
 
-Add the config to your api config
+Add the config to your api config. You can add different configurations for different origins. `__ORIGIN__` must match request origin. (Eg. `http://localhost:3000`)
 
 ```json
 "extensions":{
    "cybersource": {
-      "configObj": {
+     "__ORIGIN__": {
+       "configObj": {
         "authenticationType": "http_signature",
         "runEnvironment": "cybersource.environment.SANDBOX",
         "merchantID": "__MERCHANT_ID__",
@@ -66,6 +67,8 @@ Add the config to your api config
       },
       "encryptionType": "RsaOaep256",
       "targetOrigin": "http://localhost:3000"
+     },
+     ...
     }
   }
 ```

@@ -15,14 +15,23 @@ module.exports = ({ config, db }) => {
    *  prior to requesting to tokenize the card data from your customer’s device or browser.
    */
   csApi.get('/generate-key', (req, res) => {
+    const origin = req.get('origin')
+
+    if (!config.extensions.cybersource.hasOwnProperty(origin)) {
+      apiStatus(res, 'Origin not allowed', 500)
+      return
+    }
+
+    let siteConfig = config.extensions.cybersource[origin]
+
     try {
-      var instance = new cybersourceRestApi.KeyGenerationApi(config.extensions.cybersource.configObj)
+      const instance = new cybersourceRestApi.KeyGenerationApi(siteConfig.configObj)
 
-      var request = new cybersourceRestApi.GeneratePublicKeyRequest()
-      request.encryptionType = config.extensions.cybersource.encryptionType
-      request.targetOrigin = config.extensions.cybersource.targetOrigin
+      const request = new cybersourceRestApi.GeneratePublicKeyRequest()
+      request.encryptionType = siteConfig.encryptionType
+      request.targetOrigin = siteConfig.targetOrigin
 
-      var options = {
+      let options = {
         'generatePublicKeyRequest': request
       }
 
