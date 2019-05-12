@@ -28,9 +28,9 @@
               @blur="$v.cardInfo.expirationMonth.$touch()"
             >
             <span class="help-error" v-if="errors.cardExpirationMonth">{{ errors.cardExpirationMonth }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.required">{{ t('Expiration Month is required.') }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.numeric">{{ t('Expiration Month should be numeric.') }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationMonth.minLength || !$v.cardInfo.expirationMonth.maxLength">{{ t('Expiration Month should be 2 digits length.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationMonth.$error && !$v.cardInfo.expirationMonth.required">{{ t('Expiration Month is required.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationMonth.$error && !$v.cardInfo.expirationMonth.numeric">{{ t('Expiration Month should be numeric.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationMonth.$error && !$v.cardInfo.expirationMonth.minLength || !$v.cardInfo.expirationMonth.maxLength">{{ t('Expiration Month should be 2 digits length.') }}</span>
           </div>
 
           <div class="col-6">
@@ -45,9 +45,9 @@
               @blur="$v.cardInfo.expirationYear.$touch()"
             >
             <span class="help-error" v-if="errors.cardExpirationYear">{{ errors.cardExpirationYear }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationYear.required">{{ t('Expiration Year is required.') }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationYear.numeric">{{ t('Expiration Year should be numeric.') }}</span>
-            <span class="help-error" v-if="!$v.cardInfo.expirationYear.minLength || !$v.cardInfo.expirationYear.maxLength">{{ t('Expiration Year should be 4 digits length.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationYear.$error && !$v.cardInfo.expirationYear.required">{{ t('Expiration Year is required.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationYear.$error && !$v.cardInfo.expirationYear.numeric">{{ t('Expiration Year should be numeric.') }}</span>
+            <span class="help-error" v-if="$v.cardInfo.expirationYear.$error && !$v.cardInfo.expirationYear.minLength || !$v.cardInfo.expirationYear.maxLength">{{ t('Expiration Year should be 4 digits length.') }}</span>
           </div>
         </div>
       </div>
@@ -141,7 +141,9 @@ export default {
       rootStore.dispatch('payment-cybersource/invalidateKey')
       rootStore.dispatch('payment-cybersource/invalidateMicroform')
       rootStore.dispatch('payment-cybersource/invalidateToken')
-      document.getElementById(this.containerId).innerHTML = null
+      if (document.getElementById(this.containerId)) {
+        document.getElementById(this.containerId).innerHTML = null
+      }
       this.errors = {
         message: null,
         cardNumber: null,
