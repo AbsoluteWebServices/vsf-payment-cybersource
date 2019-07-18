@@ -241,7 +241,7 @@
 </template>
 
 <script>
-import { required, minLength, maxLength, numeric } from 'vuelidate/lib/validators'
+import { required, minLength, maxLength } from 'vuelidate/lib/validators'
 import i18n from '@vue-storefront/i18n'
 import rootStore from '@vue-storefront/core/store'
 import { setTimeout, clearTimeout } from 'timers'
@@ -284,8 +284,8 @@ export default {
       let monthsOptions = []
       for (let i = 1; i < 13; i++) {
         monthsOptions.push({
-          value: (i < 10) ? '0' + i : i,
-          label: (i < 10) ? '0' + i : i
+          value: (i < 10) ? '0' + i : '' + i,
+          label: (i < 10) ? '0' + i : '' + i
         })
       }
       return monthsOptions
@@ -294,7 +294,7 @@ export default {
       let monthsOptions = []
       for (let i = new Date().getFullYear(); i < new Date().getFullYear() + 21; i++) {
         monthsOptions.push({
-          value: i,
+          value: '' + i,
           label: i
         })
       }
@@ -405,13 +405,11 @@ export default {
       cardInfo: {
         expirationMonth: {
           required,
-          numeric,
           minLength: minLength(2),
           maxLength: maxLength(2)
         },
         expirationYear: {
           required,
-          numeric,
           minLength: minLength(4),
           maxLength: maxLength(4)
         }
