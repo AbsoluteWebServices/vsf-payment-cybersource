@@ -26,7 +26,7 @@ Add `backend_method_code` and endpoint to your config
 
 ```json
   "cybersource" : {
-    "backend_method_code": "chcybersource",
+    "backend_method_code": "__CYBERSOURCE_BACKEND_METHOD_CODE__",
     "endpoint": {
       "generateKey": "http://localhost:8080/api/ext/cybersource/generate-key"
     }
