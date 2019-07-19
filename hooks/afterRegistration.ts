@@ -1,7 +1,7 @@
 import Microform from '../components/Microform.vue'
 
 export function afterRegistration({ Vue, config, store, isServer }) {
-  const CURRENT_METHOD_CODE = 'cybersource'
+  const CURRENT_METHOD_CODE = config.cybersource.backend_method_code || 'cybersource'
   let correctPaymentMethod = false
   let componentInstance = null
 
@@ -45,13 +45,13 @@ export function afterRegistration({ Vue, config, store, isServer }) {
     'code': CURRENT_METHOD_CODE,
     'cost': 0,
     'costInclTax': 0,
-    'default': true,
+    'default': false,
     'offline': false,
-    'is_server_method': false
+    'is_server_method': config.cybersource.backend_method_code ? true : false
   }
   store.dispatch('payment/addMethod', paymentMethodConfig)
 
-  if (!Vue.prototype.$isServer) {
+  if (!isServer) {
     let jsUrl = 'https://flex.cybersource.com/cybersource/assets/microform/0.4.0/flex-microform.min.js'
     let docHead = document.getElementsByTagName('head')[0]
     let docScript = document.createElement('script')
