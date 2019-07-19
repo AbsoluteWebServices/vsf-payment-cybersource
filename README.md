@@ -22,10 +22,11 @@ export const registerModules: VueStorefrontModule[] = [
 ]
 ```
 
-Add the endpoint to your config
+Add `backend_method_code` and endpoint to your config
 
 ```json
   "cybersource" : {
+    "backend_method_code": "chcybersource",
     "endpoint": {
       "generateKey": "http://localhost:8080/api/ext/cybersource/generate-key"
     }
