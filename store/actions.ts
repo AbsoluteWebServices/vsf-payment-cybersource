@@ -5,20 +5,29 @@ import config from 'config'
 import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 
 export const actions: ActionTree<CybersourceState, any> = {
-  async generateKey ({ commit }) {
+  generateKey ({ commit }): Promise<Response> {
     let url = config.cybersource.endpoint.generateKey
     url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
-    const resp = await fetch(url, {
-      method: 'GET',
-      mode: 'cors',
-      headers: {
-        'Accept': 'application/json, text/plain, */*',
-        'Content-Type': 'application/json'
-      },
-    });
-    const json = await resp.json()
-    commit(types.SET_KEY, json.result.key)
-    return json.result.key
+
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+      }).then(resp => {
+        resp.json().then(json => {
+          commit(types.SET_KEY, json.result.key)
+          resolve(json.result.key)
+        }).catch(err => {
+          reject(err)
+        })
+      }).catch(err => {
+        reject(err)
+      })
+    })
   },
   invalidateKey ({ commit }) {
     commit(types.SET_KEY, null)
