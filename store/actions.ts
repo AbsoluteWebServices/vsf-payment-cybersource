@@ -2,6 +2,7 @@ import { CybersourceState } from '../types/CybersourceState'
 import { ActionTree } from 'vuex'
 import * as types from './mutation-types'
 import config from 'config'
+import fetch from 'isomorphic-fetch'
 import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 
 export const actions: ActionTree<CybersourceState, any> = {
