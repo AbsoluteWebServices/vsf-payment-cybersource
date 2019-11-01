@@ -1,4 +1,6 @@
 import Microform from '../components/Microform.vue'
+import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
+
 
 export function afterRegistration({ Vue, config, store, isServer }) {
   const CURRENT_METHOD_CODE = config.cybersource.backend_method_code || 'cybersource'
@@ -6,6 +8,9 @@ export function afterRegistration({ Vue, config, store, isServer }) {
   let componentInstance = null
 
   const placeOrder = () => {
+    let url = config.cybersource.endpoint.addPaymentData
+    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
+
     if (correctPaymentMethod) {
       if (store.state['payment-cybersource'].token) {
         Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
@@ -31,9 +36,19 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
           store.dispatch('payment-cybersource/setToken', token)
 
-          Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-            token
-          })
+            fetch(url, {
+                method: 'POST',
+                mode: 'cors',
+                headers: {
+                    'Accept': 'application/json, text/plain, */*',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(Object.assign(token, options, {quote_masked_id: store.state['cart'].cartServerToken}))
+            }).finally( () => {
+                Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
+                    token
+                })
+            })
         })
       }
     }
