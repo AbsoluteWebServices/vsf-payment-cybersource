@@ -8,9 +8,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
   const placeOrder = () => {
     if (correctPaymentMethod) {
       if (store.state['payment-cybersource'].token) {
-        Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-          token: store.state['payment-cybersource'].token
-        })
+        Vue.prototype.$bus.$emit('checkout-do-placeOrder', {})
       } else if (store.state['payment-cybersource'].microform && componentInstance.validate()) {
         componentInstance.block()
 
@@ -37,9 +35,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
             quote_masked_id: store.state.cart.cartServerToken
           })
 
-          Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-            token
-          })
+          Vue.prototype.$bus.$emit('checkout-do-placeOrder', {})
         })
       }
     }
