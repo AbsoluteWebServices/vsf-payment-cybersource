@@ -8,6 +8,6 @@
   "dependencies": {
     "cybersource-rest-client": "^0.0.6",
     "js-base64": "^2.5.1",
-    "magento2-rest-client": "github:DivanteLtd/magento2-rest-client"
+    "magento2-rest-client": "github:DivanteLtd/magento2-rest-client#29cfac4c4f9982f99b7832621820f93dcf6f9dd4"
   }
 }
