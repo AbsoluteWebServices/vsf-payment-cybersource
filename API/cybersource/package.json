@@ -6,6 +6,8 @@
   "author": "Dmitry Kozachek <dmitryk@absoluteweb.com> and contributors",
   "license": "MIT",
   "dependencies": {
-    "cybersource-rest-client": "^0.0.6"
+    "cybersource-rest-client": "^0.0.6",
+    "js-base64": "^2.5.1",
+    "magento2-rest-client": "^0.0.2"
   }
 }

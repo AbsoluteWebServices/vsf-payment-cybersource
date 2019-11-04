@@ -1,6 +1,8 @@
-import { apiStatus } from '../../../lib/util'
-import { Router } from 'express'
-import cybersourceRestApi from 'cybersource-rest-client'
+import { apiStatus } from '../../../lib/util';
+import { Router } from 'express';
+import cybersourceRestApi from 'cybersource-rest-client';
+const Magento2Client = require('magento2-rest-client').Magento2Client;
+const Base64 = require('js-base64').Base64;
 
 module.exports = ({ config, db }) => {
   let csApi = Router()
@@ -48,6 +50,36 @@ module.exports = ({ config, db }) => {
       apiStatus(res, error, 500)
     }
   })
+
+
+  csApi.post('/add-payment-data', (req, res) => {
+    let client =  Magento2Client(config.magento2.api);
+    let request = {
+        "secureAcceptanceVSFData": {
+            "additional_info": Base64.encode(JSON.stringify(
+                {
+                    quote_masked_id: req.body.quote_masked_id,
+                    payment_token: req.body.token,
+                    req_card_number: req.body.maskedPan,
+                    req_card_type: req.body.cardType,
+                    req_card_expiry_date: req.body.cardExpirationMonth + "-" + req.body.cardExpirationYear
+                }
+            ))
+        }
+    };
+    client.addMethods('addCyberSourcePaymentData', function (restClient) {
+        let module = {};
+        module.addPayment = function () {
+            return restClient.post('/SecureAcceptanceVSF', request);
+        };
+        return module;
+    });
+    return client.addCyberSourcePaymentData.addPayment().then((result) => {
+            apiStatus(res, result, 200);
+        }).catch(err=> {
+            apiStatus(res, err, 500);
+        });
+})
 
   return csApi
 }
