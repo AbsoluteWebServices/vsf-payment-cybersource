@@ -7,7 +7,7 @@ import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 
 export const actions: ActionTree<CybersourceState, any> = {
   generateKey ({ commit }): Promise<Response> {
-    let url = config.cybersource.endpoint.generateKey
+    let url = config.cybersource.endpoint + '/generate-key'
     url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
 
     return new Promise((resolve, reject) => {
@@ -25,6 +25,25 @@ export const actions: ActionTree<CybersourceState, any> = {
         }).catch(err => {
           reject(err)
         })
+      }).catch(err => {
+        reject(err)
+      })
+    })
+  },
+  addPaymentData ({ commit }, data): Promise<Response> {
+    let url = config.cybersource.endpoint + '/add-payment-data'
+    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
+
+    return new Promise((resolve, reject) => {
+      fetch(url, {
+        method: 'GET',
+        mode: 'cors',
+        headers: {
+          'Accept': 'application/json, text/plain, */*',
+          'Content-Type': 'application/json'
+        },
+      }).then(resp => {
+        resolve(resp)
       }).catch(err => {
         reject(err)
       })

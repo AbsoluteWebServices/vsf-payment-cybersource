@@ -1,5 +1,4 @@
 import Microform from '../components/Microform.vue'
-import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
 import { METHOD_CODE } from '../index'
 
 export function afterRegistration({ Vue, config, store, isServer }) {
@@ -7,9 +6,6 @@ export function afterRegistration({ Vue, config, store, isServer }) {
   let componentInstance = null
 
   const placeOrder = () => {
-    let url = config.cybersource.endpoint.addPaymentData
-    url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
-
     if (correctPaymentMethod) {
       if (store.state['payment-cybersource'].token) {
         Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
@@ -23,7 +19,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
           cardExpirationYear: store.state['payment-cybersource'].cardInfo.expirationYear
         }
 
-        store.state['payment-cybersource'].microform.createToken(options, (error, token) => {
+        store.state['payment-cybersource'].microform.createToken(options, async (error, token) => {
           if (error) {
             // handle error
             componentInstance.unblock()
@@ -35,19 +31,15 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
           store.dispatch('payment-cybersource/setToken', token)
 
-            fetch(url, {
-                method: 'POST',
-                mode: 'cors',
-                headers: {
-                    'Accept': 'application/json, text/plain, */*',
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(Object.assign(token, options, {quote_masked_id: store.state['cart'].cartServerToken}))
-            }).finally( () => {
-                Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
-                    token
-                })
-            })
+          await store.dispatch('payment-cybersource/addPaymentData', {
+            ...token,
+            ...options,
+            quote_masked_id: store.state.cart.cartServerToken
+          })
+
+          Vue.prototype.$bus.$emit('checkout-do-placeOrder', {
+            token
+          })
         })
       }
     }
