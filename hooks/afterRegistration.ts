@@ -1,9 +1,8 @@
 import Microform from '../components/Microform.vue'
 import { adjustMultistoreApiUrl } from '@vue-storefront/core/lib/multistore'
-
+import { METHOD_CODE } from '../index'
 
 export function afterRegistration({ Vue, config, store, isServer }) {
-  const CURRENT_METHOD_CODE = config.cybersource.backend_method_code || 'cybersource'
   let correctPaymentMethod = false
   let componentInstance = null
 
@@ -57,12 +56,12 @@ export function afterRegistration({ Vue, config, store, isServer }) {
   // Update the methods
   let paymentMethodConfig = {
     'title': 'Cybersource',
-    'code': CURRENT_METHOD_CODE,
+    'code': METHOD_CODE,
     'cost': 0,
     'costInclTax': 0,
     'default': false,
     'offline': false,
-    'is_server_method': config.cybersource.backend_method_code ? true : false
+    'is_server_method': false
   }
   store.dispatch('payment/addMethod', paymentMethodConfig)
 
@@ -78,7 +77,7 @@ export function afterRegistration({ Vue, config, store, isServer }) {
 
     // Mount the microform component when required.
     Vue.prototype.$bus.$on('checkout-payment-method-changed', (paymentMethodCode) => {
-      if (paymentMethodCode === CURRENT_METHOD_CODE) {
+      if (paymentMethodCode === METHOD_CODE) {
         correctPaymentMethod = true
 
         const Component = Vue.extend(Microform)
