@@ -36,12 +36,13 @@ export const actions: ActionTree<CybersourceState, any> = {
 
     return new Promise((resolve, reject) => {
       fetch(url, {
-        method: 'GET',
+        method: 'POST',
         mode: 'cors',
         headers: {
           'Accept': 'application/json, text/plain, */*',
           'Content-Type': 'application/json'
         },
+        body: JSON.stringify(data)
       }).then(resp => {
         resolve(resp)
       }).catch(err => {
