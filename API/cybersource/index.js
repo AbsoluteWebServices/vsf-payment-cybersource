@@ -51,35 +51,34 @@ module.exports = ({ config, db }) => {
     }
   })
 
-
   csApi.post('/add-payment-data', (req, res) => {
-    let client =  Magento2Client(config.magento2.api);
+    let client = Magento2Client(config.magento2.api)
     let request = {
-        "secureAcceptanceVSFData": {
-            "additional_info": Base64.encode(JSON.stringify(
-                {
-                    quote_masked_id: req.body.quote_masked_id,
-                    payment_token: req.body.token,
-                    req_card_number: req.body.maskedPan,
-                    req_card_type: req.body.cardType,
-                    req_card_expiry_date: req.body.cardExpirationMonth + "-" + req.body.cardExpirationYear
-                }
-            ))
-        }
-    };
-    client.addMethods('addCyberSourcePaymentData', function (restClient) {
-        let module = {};
-        module.addPayment = function () {
-            return restClient.post('/SecureAcceptanceVSF', request);
-        };
-        return module;
-    });
+      secureAcceptanceVSFData: {
+        additional_info: Base64.encode(JSON.stringify(
+          {
+            quote_masked_id: req.body.quote_masked_id,
+            payment_token: req.body.token,
+            req_card_number: req.body.maskedPan,
+            req_card_type: req.body.cardType,
+            req_card_expiry_date: req.body.cardExpirationMonth + '-' + req.body.cardExpirationYear
+          }
+        ))
+      }
+    }
+    client.addMethods('addCyberSourcePaymentData', (restClient) => {
+      let module = {}
+      module.addPayment = () => {
+        return restClient.post('/SecureAcceptanceVSF', request)
+      }
+      return module
+    })
     return client.addCyberSourcePaymentData.addPayment().then((result) => {
-            apiStatus(res, result, 200);
-        }).catch(err=> {
-            apiStatus(res, err, 500);
-        });
-})
+      apiStatus(res, result, 200)
+    }).catch((err) => {
+      apiStatus(res, err, 500)
+    })
+  })
 
   return csApi
 }
