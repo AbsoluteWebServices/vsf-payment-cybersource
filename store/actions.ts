@@ -31,7 +31,7 @@ export const actions: ActionTree<CybersourceState, any> = {
     })
   },
   addPaymentData ({ commit }, data): Promise<Response> {
-    let url = config.cybersource.endpoint.addPaymentData
+    let url = config.cybersource.endpoint + '/add-payment-data'
     url = config.storeViews.multistore ? adjustMultistoreApiUrl(url) : url
 
     return new Promise((resolve, reject) => {
