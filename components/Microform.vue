@@ -337,6 +337,9 @@ export default {
           console.error(error)
           return
         }
+
+        microformInstance.on('cardTypeChange', this.onValidationChange)
+
         rootStore.dispatch('payment-cybersource/setMicroform', microformInstance)
         this.unblock()
       })
@@ -398,6 +401,45 @@ export default {
         }
       }
       this.errors = errors
+    },
+    onValidationChange (data) {
+      console.log(data)
+      this.errors.cardNumber = null
+      if (!data || !data.card || data.card.length < 1) {
+        this.errors.cardNumber = i18n.t('Card number is invalid')
+      }
+    },
+    async tokenize () {
+      console.log('tokenize')
+      if (!this.validate()) {
+        return new Promise((resolve, reject) => resolve(false))
+      }
+
+      const options = {
+        cardExpirationMonth: this.cardInfo.expirationMonth,
+        cardExpirationYear: this.cardInfo.expirationYear
+      }
+
+      this.$store.dispatch('payment-cybersource/invalidateToken')
+      return new Promise((resolve, reject) => {
+        this.$store.state['payment-cybersource'].microform.createToken(options, async (error, token) => {
+          if (error) {
+            // handle error
+            this.unblock()
+            this.setErrors(error)
+            resolve(false)
+          } else {
+            this.cancelReload()
+            this.$store.dispatch('payment-cybersource/setToken', token)
+            await this.$store.dispatch('payment-cybersource/addPaymentData', {
+              ...token,
+              ...options,
+              quote_masked_id: this.$store.state.cart.cartServerToken
+            })
+            resolve(true)
+          }
+        })
+      })
     }
   },
   validations () {

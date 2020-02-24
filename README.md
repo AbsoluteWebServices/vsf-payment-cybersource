@@ -10,7 +10,18 @@ By hand (preferer):
 git clone git@github.com:AbsoluteWebServices/vsf-payment-cybersource.git ./vue-storefront/src/modules/payment-cybersource
 ```
 
-Registration the Cybersource module. Go to `./vue-storefront/src/modules/index.ts`
+Add `backend_method_code` and endpoint to your config
+
+```json
+  "cybersource" : {
+    "backend_method_code": "__CYBERSOURCE_BACKEND_METHOD_CODE__",
+    "endpoint": {
+      "generateKey": "http://localhost:8080/api/ext/cybersource/generate-key"
+    }
+  },
+```
+
+### Registration the Cybersource module. Go to `./vue-storefront/src/modules/index.ts`
 
 ```js
 ...
@@ -22,16 +33,51 @@ export const registerModules: VueStorefrontModule[] = [
 ]
 ```
 
-Add `backend_method_code` and endpoint to your config
+### Integration the Stripe component to you theme
+```js
+import { METHOD_CODE as CYBERSOURCE_METHOD_CODE } from 'src/modules/vsf-payment-cybersource'
+import CybersourceMicroform from 'src/modules/vsf-payment-cybersource/components/Microform'
 
-```json
-  "cybersource" : {
-    "backend_method_code": "__CYBERSOURCE_BACKEND_METHOD_CODE__",
-    "endpoint": {
-      "generateKey": "http://localhost:8080/api/ext/cybersource/generate-key"
+export default {
+  components: {
+    ...
+    CybersourceMicroform
+  },
+  data () {
+    return {
+      ...
+      CYBERSOURCE_METHOD_CODE: CYBERSOURCE_METHOD_CODE
     }
   },
 ```
+
+Then need to add component instance before <div id="checkout-order-review-additional-container"> to template section
+
+```html
+...
+<cybersource-microform v-if="payment.paymentMethod === CYBERSOURCE_METHOD_CODE" key="cybersource-microform" ref="cybersourceMicroform" />
+...
+```
+
+Then need to modify `sendDataToCheckout` method to make tokenization
+
+```js
+methods: {
+  ...
+  async sendDataToCheckout () {
+    let paymentValid = true
+
+    if (this.payment.paymentMethod === CYBERSOURCE_METHOD_CODE && this.$refs.cybersourceMicroform) {
+      paymentValid = await this.$refs.cybersourceMicroform.tokenize()
+    }
+
+    if (paymentValid) {
+      // process to the next step
+    }
+  }
+}
+```
+
 
 ### dependencies for built
 
