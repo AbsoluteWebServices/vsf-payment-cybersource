@@ -53,16 +53,8 @@ export const actions: ActionTree<CybersourceState, any> = {
   invalidateKey ({ commit }) {
     commit(types.SET_KEY, null)
   },
-  setMicroform ({ commit }, microformInstance) {
-    commit(types.SET_MICROFORM, microformInstance)
-  },
-  invalidateMicroform ({ commit }) {
-    commit(types.SET_MICROFORM, null)
-  },
-  setToken ({ commit, dispatch }, token) {
+  setToken ({ commit }, token) {
     commit(types.SET_TOKEN, token)
-    dispatch('invalidateMicroform')
-    dispatch('invalidateKey')
   },
   invalidateToken ({ commit }) {
     commit(types.SET_TOKEN, null)

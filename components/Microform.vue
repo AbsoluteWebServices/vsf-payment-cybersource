@@ -250,6 +250,7 @@ export default {
   name: 'CybersourceMicroform',
   data () {
     return {
+      microform: null,
       disabled: false,
       labelId: 'payment-cybersource-label',
       containerId: 'payment-cybersource-container',
@@ -340,15 +341,15 @@ export default {
 
         microformInstance.on('cardTypeChange', this.onValidationChange)
 
-        rootStore.dispatch('payment-cybersource/setMicroform', microformInstance)
+        this.microform = microformInstance
         this.unblock()
       })
     },
     invalidateMicroform () {
       this.block()
       rootStore.dispatch('payment-cybersource/invalidateKey')
-      rootStore.dispatch('payment-cybersource/invalidateMicroform')
       rootStore.dispatch('payment-cybersource/invalidateToken')
+      this.microform = null
       if (document.getElementById(this.containerId)) {
         document.getElementById(this.containerId).innerHTML = null
       }
@@ -403,14 +404,12 @@ export default {
       this.errors = errors
     },
     onValidationChange (data) {
-      console.log(data)
       this.errors.cardNumber = null
       if (!data || !data.card || data.card.length < 1) {
         this.errors.cardNumber = i18n.t('Card number is invalid')
       }
     },
     async tokenize () {
-      console.log('tokenize')
       if (!this.validate()) {
         return new Promise((resolve, reject) => resolve(false))
       }
@@ -422,7 +421,7 @@ export default {
 
       this.$store.dispatch('payment-cybersource/invalidateToken')
       return new Promise((resolve, reject) => {
-        this.$store.state['payment-cybersource'].microform.createToken(options, async (error, token) => {
+        this.microform.createToken(options, async (error, token) => {
           if (error) {
             // handle error
             this.unblock()
