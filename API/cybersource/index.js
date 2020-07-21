@@ -1,11 +1,34 @@
-import { apiStatus } from '../../../lib/util';
+import { apiStatus, apiError } from '../../../lib/util';
 import { Router } from 'express';
+import axios from 'axios';
 import cybersourceRestApi from 'cybersource-rest-client';
 const Magento2Client = require('magento2-rest-client').Magento2Client;
 const Base64 = require('js-base64').Base64;
 
 module.exports = ({ config, db }) => {
   let csApi = Router()
+
+  const verifyCaptcha = (req) => {
+    if (config.extensions.cybersource.recaptcha) {
+      const key = config.extensions.cybersource.recaptcha.secretKey
+      const endpoint = config.extensions.cybersource.recaptcha.verifyEndpoint
+      const recaptchaResponse = axios.post(endpoint, {
+        secret: key,
+        response: req.body.recaptcha,
+        remoteip: req.headers['cf-connecting-ip'] || req.headers['x-forwarded-for'] || req.connection.remoteAddress || null
+      });
+
+      const recaptcha = recaptchaResponse.json()
+
+      if (!recaptcha.success) {
+        throw new Error('[Captcha] Validation failed.')
+      }
+
+      if (recaptcha.hostname !== req.origin) {
+        throw new Error('[Captcha] Origin not allowed.')
+      }
+    }
+  }
 
   /**
    *  Generate a one-time use public key and key ID to encrypt the card number
@@ -52,6 +75,13 @@ module.exports = ({ config, db }) => {
   })
 
   csApi.post('/add-payment-data', (req, res) => {
+    try {
+      verifyCaptcha(req)
+    } catch (e) {
+      apiError(res, e)
+      return
+    }
+
     let client = Magento2Client(config.magento2.api)
     let request = {
       secureAcceptanceVSFData: {
